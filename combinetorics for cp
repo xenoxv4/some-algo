@@ -1,0 +1,43 @@
+const int MOD = 1e9 + 7; // Or 998244353
+const int MAX = 1000005; // Set according to N constraints
+
+vector<long long> fact(MAX), invFact(MAX);
+
+// Binary Exponentiation to find (base^exp) % MOD in O(log exp)
+long long power(long long base, long long exp) {
+    long long res = 1;
+    base %= MOD;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % MOD;
+        base = (base * base) % MOD;
+        exp /= 2;
+    }
+    return res;
+}
+
+// Modular Inverse using Fermat's Little Theorem: inv(A) = A^(MOD-2) % MOD
+long long modInverse(long long n) {
+    return power(n, MOD - 2);
+}
+
+// O(N) Precomputation of factorials and inverse factorials
+void precompute() {
+    fact[0] = 1;
+    invFact[0] = 1;
+    for (int i = 1; i < MAX; i++) {
+        fact[i] = (fact[i - 1] * i) % MOD;
+    }
+    // Compute inverse factorial for the largest element
+    invFact[MAX - 1] = modInverse(fact[MAX - 1]);
+    
+    // Linear scan backwards to fill the rest: 1/(i!) = 1/((i+1)!) * (i+1)
+    for (int i = MAX - 2; i >= 1; i--) {
+        invFact[i] = (invFact[i + 1] * (i + 1)) % MOD;
+    }
+}
+
+// O(1) Query for nCr
+long long nCr(int n, int r) {
+    if (r < 0 || r > n) return 0;
+    return fact[n] * invFact[r] % MOD * invFact[n - r] % MOD;
+}
